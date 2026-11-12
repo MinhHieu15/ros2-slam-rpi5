@@ -1,11 +1,8 @@
 """
-Node "wander": robot tự đi khám phá và né vật cản dựa trên LiDAR (/scan),
-giúp slam_toolbox xây dựng bản đồ mà không cần điều khiển tay.
+Drive around and avoid obstacles using /scan, so slam_toolbox can build a map without teleop.
 
-Logic đơn giản:
-- Chia vùng quét phía trước thành 3 sector: trái / giữa / phải.
-- Phía trước thoáng  -> đi thẳng.
-- Có vật cản         -> quay về phía sector thoáng hơn.
+The front of the scan is split into left, centre and right sectors. If the centre is clear the
+robot drives forward; otherwise it turns toward whichever side has more room.
 """
 import math
 
@@ -22,7 +19,7 @@ class Wander(Node):
         self.declare_parameter('linear_speed', 0.15)
         self.declare_parameter('angular_speed', 0.8)
         self.declare_parameter('safe_distance', 0.45)
-        # TurtleBot3 trên ROS 2 Jazzy dùng TwistStamped cho /cmd_vel
+        # TurtleBot3 on Jazzy expects TwistStamped on /cmd_vel
         self.declare_parameter('stamped', True)
 
         self.v = self.get_parameter('linear_speed').value
@@ -33,10 +30,9 @@ class Wander(Node):
         msg_type = TwistStamped if self.stamped else Twist
         self.pub = self.create_publisher(msg_type, 'cmd_vel', 10)
         self.create_subscription(LaserScan, 'scan', self.on_scan, qos_profile_sensor_data)
-        self.get_logger().info('Wander node started')
 
     def sector_min(self, scan, start_deg, end_deg):
-        """Khoảng cách nhỏ nhất trong sector [start_deg, end_deg] (0 deg = phía trước)."""
+        """Closest valid range between start_deg and end_deg, 0 deg being straight ahead."""
         vals = []
         for i, r in enumerate(scan.ranges):
             ang = math.degrees(scan.angle_min + i * scan.angle_increment)
@@ -53,7 +49,7 @@ class Wander(Node):
         twist = Twist()
         if front > self.d_safe:
             twist.linear.x = self.v
-            # bám nhẹ tránh tường hai bên
+            # steer gently away from a wall on either side
             if left < self.d_safe:
                 twist.angular.z = -0.3 * self.w
             elif right < self.d_safe:

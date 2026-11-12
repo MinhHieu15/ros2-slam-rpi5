@@ -1,10 +1,10 @@
 """
-Chạy SLAM trên robot thật với Raspberry Pi 5 (Ubuntu 24.04 + ROS 2 Jazzy):
-RPLIDAR + slam_toolbox. Odometry (odom -> base_link) do driver động cơ/encoder cung cấp.
+SLAM on the real robot: Raspberry Pi 5 (Ubuntu 24.04, ROS 2 Jazzy) with an RPLIDAR and slam_toolbox.
+The motor/encoder driver must publish odom -> base_link.
 
     ros2 launch slam_bot rpi5_slam.launch.py serial_port:=/dev/ttyUSB0
 
-RViz nên chạy trên laptop cùng ROS_DOMAIN_ID để giảm tải cho Pi.
+Run RViz on a laptop with the same ROS_DOMAIN_ID to keep load off the Pi.
 """
 import os
 
@@ -31,7 +31,7 @@ def generate_launch_description():
                  'angle_compensate': True,
              }]),
 
-        # Vị trí LiDAR so với tâm robot (đo trên robot thật rồi sửa lại)
+        # LiDAR mount relative to base_link; measure on the robot and update
         Node(package='tf2_ros', executable='static_transform_publisher',
              arguments=['--x', '0.0', '--y', '0.0', '--z', '0.15',
                         '--frame-id', 'base_link', '--child-frame-id', 'laser']),

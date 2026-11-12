@@ -1,5 +1,5 @@
 """
-Mô phỏng SLAM: Gazebo (TurtleBot3 world) + slam_toolbox + node wander + RViz2.
+SLAM in simulation: Gazebo (TurtleBot3 world), slam_toolbox, the wander node and RViz2.
 
     export TURTLEBOT3_MODEL=burger
     ros2 launch slam_bot sim_slam.launch.py
@@ -25,7 +25,7 @@ def generate_launch_description():
 
     return LaunchDescription([
         DeclareLaunchArgument('auto_explore', default_value='true',
-                              description='Chạy node wander để robot tự khám phá'),
+                              description='Run the wander node so the robot explores on its own'),
         DeclareLaunchArgument('rviz', default_value='true'),
 
         IncludeLaunchDescription(
