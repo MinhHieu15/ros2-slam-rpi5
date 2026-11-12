@@ -1,0 +1,3 @@
+method,ate_rmse_m,ate_max_m,heading_rmse_deg,keyframes,loop_closures
+odometry,2.3387,5.4396,32.699,260,0
+graph_slam,0.0196,0.0448,0.302,260,38
